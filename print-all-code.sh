@@ -1,1 +1,0 @@
-find . -type f -exec sh -c 'echo "Bestand: $1"; cat "$1"; echo ""' sh {} \;
