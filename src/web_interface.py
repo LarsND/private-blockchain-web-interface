@@ -6,6 +6,7 @@ import os
 import json
 import threading
 import time
+import hashlib
 
 # Load account credentials
 credentials_path = './config/account_credentials.json'
@@ -67,8 +68,20 @@ def initialize_app():
             nonce_manager = NonceManager(w3, account_address)
             nonce_manager.initialize_nonce()
 
+# Switch between hybrid and direct storage
+use_hybrid_storage = True
+
 # Run initialization logic when the app starts
 initialize_app()
+
+# Utility function for hybrid storage
+def save_log_to_file(log_data, file_path):
+    """Save log data to a file and compute its hash."""
+    with open(file_path, 'w') as log_file:
+        json.dump(log_data, log_file)
+    with open(file_path, 'rb') as log_file:
+        log_hash = hashlib.sha256(log_file.read()).hexdigest()
+    return log_hash
 
 @app.route('/favicon.ico')
 def favicon():
@@ -117,6 +130,19 @@ def send_transaction():
         return jsonify({"error": "No message provided"}), 400
 
     message = data['message']
+    
+    if use_hybrid_storage:
+        log_file_path = './data/log.json'
+        log_data = {"message": message}
+
+        # Save the log to a file and get the hash
+        log_hash = save_log_to_file(log_data, log_file_path)
+        message_to_store = log_hash
+    else:
+        message_to_store = message
+
+    # Save the log to a file and get the hash
+    log_hash = save_log_to_file(log_data, log_file_path)
 
     for _ in range(3):  # Retry mechanism for nonce-related errors
         try:
@@ -126,7 +152,7 @@ def send_transaction():
             tx = {
                 'to': account_address,  # Sending to self for demo
                 'value': 0,
-                'data': w3.to_hex(text=message),
+                'data': w3.to_hex(text=message_to_store),
                 'gas': 2000000,
                 'gasPrice': w3.to_wei('1', 'gwei'),
                 'nonce': nonce,
@@ -147,4 +173,5 @@ def send_transaction():
     return jsonify({"error": "Failed to send transaction after retries"}), 500
 
 if __name__ == '__main__':
+    os.makedirs('./data', exist_ok=True)
     app.run(host='0.0.0.0', port=3055)
