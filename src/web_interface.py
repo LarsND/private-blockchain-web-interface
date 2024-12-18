@@ -7,6 +7,7 @@ import json
 import threading
 import time
 import hashlib
+from decouple import config
 
 # Load account credentials
 credentials_path = './config/account_credentials.json'
@@ -69,7 +70,8 @@ def initialize_app():
             nonce_manager.initialize_nonce()
 
 # Switch between hybrid and direct storage
-use_hybrid_storage = True
+use_hybrid_storage = config('HYBRID_STORAGE', default=False, cast=bool)
+print(f"Use hybrid storage: {use_hybrid_storage}")
 
 # Run initialization logic when the app starts
 initialize_app()
@@ -132,7 +134,7 @@ def send_transaction():
     message = data['message']
     
     if use_hybrid_storage:
-        log_file_path = './data/log.json'
+        log_file_path = './app/data/logs.json'
         log_data = {"message": message}
 
         # Save the log to a file and get the hash

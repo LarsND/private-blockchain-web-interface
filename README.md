@@ -24,6 +24,7 @@ BesuChain sets up a private Ethereum-compatible blockchain using Hyperledger Bes
 
 - **Private Blockchain**: Operates a secure, private network with three authority nodes.
 - **Web Interface**: Simplifies blockchain interaction, including viewing and sending transactions.
+- **Hybrid storage**: You can store data directly on the chain, or choose to store data seperately and only store the hash (GDPR & Compliance)
 - **Clique Consensus**: Uses Proof-of-Authority for fast, energy-efficient consensus.
 - **Dockerized**: Easy setup and deployment with Docker Compose.
 
@@ -72,6 +73,7 @@ Visit [http://localhost:3055](http://localhost:3055) in your browser.
 
 - **`RPC_HTTP_PORT`**: Port for JSON-RPC API (set in `docker-compose.yml`).
 - **`RPC_URL`**: RPC endpoint for the web interface (default: `http://172.16.238.10:8545`).
+- **`HYBRID_STORAGE`**: Use hybrid storage (default: `true`).
 
 ## License
 
