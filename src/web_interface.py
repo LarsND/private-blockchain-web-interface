@@ -134,7 +134,7 @@ def send_transaction():
     message = data['message']
     
     if use_hybrid_storage:
-        log_file_path = './app/data/logs.json'
+        log_file_path = '/app/data/logs.json'
         log_data = {"message": message}
 
         # Save the log to a file and get the hash
