@@ -77,13 +77,33 @@ print(f"Use hybrid storage: {use_hybrid_storage}")
 initialize_app()
 
 # Utility function for hybrid storage
-def save_log_to_file(log_data, file_path):
-    """Save log data to a file and compute its hash."""
-    with open(file_path, 'w') as log_file:
-        json.dump(log_data, log_file)
-    with open(file_path, 'rb') as log_file:
-        log_hash = hashlib.sha256(log_file.read()).hexdigest()
-    return log_hash
+def append_hybrid_log_entry(message, file_path):
+    """Add new log to logs.json."""
+    # Get existing logs
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            try:
+                logs = json.load(f)
+            except json.JSONDecodeError:
+                logs = []
+    else:
+        logs = []
+
+    # Genererate hash
+    unique_string = message + str(time.time())
+    log_entry_hash = hashlib.sha256(unique_string.encode('utf-8')).hexdigest()
+
+    # Add log entry
+    logs.append({
+        "message": message,
+        "hash": log_entry_hash
+    })
+
+    # Save logs to file
+    with open(file_path, 'w') as f:
+        json.dump(logs, f, indent=2)
+
+    return log_entry_hash
 
 @app.route('/favicon.ico')
 def favicon():
@@ -135,16 +155,12 @@ def send_transaction():
     
     if use_hybrid_storage:
         log_file_path = '/app/data/logs.json'
-        log_data = {"message": message}
 
         # Save the log to a file and get the hash
-        log_hash = save_log_to_file(log_data, log_file_path)
+        log_hash = append_hybrid_log_entry(message, log_file_path)
         message_to_store = log_hash
     else:
         message_to_store = message
-
-    # Save the log to a file and get the hash
-    log_hash = save_log_to_file(log_data, log_file_path)
 
     for _ in range(3):  # Retry mechanism for nonce-related errors
         try:
