@@ -1,5 +1,7 @@
 # BesuChain: Private Blockchain with Web Interface
 
+![Screenshot 1](docs/image1.png)
+
 ## IMPORTANT Security Notice
 
 This project is intended as a **Proof of Concept** and is designed for use in **private, controlled environments only**. 
